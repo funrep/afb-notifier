@@ -1,14 +1,23 @@
 import requests
 import json
 import os
+from datetime import datetime
+
+import gmail
 
 url = 'https://www.afbostader.se/redimo/rest/vacantproducts'
-filename = 'afb.json'
+
+def filename():
+    # Directory path of this file
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    today = datetime.today().strftime('%Y-%m-%d')
+    return dir_path + '/afb' + today + '.json'
 
 def fetch():
     print('Fetching data from afb...')
     r = requests.get(url)
-    with open(filename, 'w') as f:
+    fn = filename()
+    with open(fn, 'w') as f:
         f.write(r.text)
     print('Saved to afb.txt')
 
@@ -31,10 +40,6 @@ rules = {
 }
 
 def pick(p):
-    # for k, r in rules.items():
-    #     if not r(p[k]):
-    #         return False
-    # return True
     return all([r(p[k]) for k, r in rules.items()])
 
 def show(p):
@@ -51,7 +56,7 @@ def show(p):
     for k in info:
         s += k + ': ' + p[k] + '\n'
     s += 'https://www.afbostader.se/lediga-bostader/bostadsdetalj/?obj=' + p['productId'] + '&area=' + p['area'] + '\n'
-    s += '-----'
+    s += '-----\n'
     return s
 
 def process():
@@ -60,5 +65,28 @@ def process():
         if pick(p): 
             print(show(p))
 
+def main():
+    try:
+        fn = filename()
+        with open(fn, 'r') as _:
+            print('Already notified today!')
+            return
+    except:
+        fetch()
+        d = ''
+        with open(fn, 'r') as f:
+            d = f.read()
+        j = json.loads(d)
+
+        msg = ''
+        for p in j['product']:
+            if pick(p):
+                msg += show(p)
+
+        # print(msg)
+        subject = 'Afb report ' + datetime.today().strftime('%Y-%m-%d')
+        gmail.mail(subject, msg)
+
 if __name__ == '__main__':
-    process()
+    # process()
+    main()
