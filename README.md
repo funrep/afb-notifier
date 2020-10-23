@@ -1,5 +1,7 @@
 # afb-notifier
 
+Repo for Code@LTH's intro lecture and code along: https://docs.google.com/presentation/d/1rV5IPzBiFoe-DPaGTZztfFuZ4lO70y6T5YRnIyjii4k/edit?usp=sharing
+
 Supervise AFBostäder programmatically to find your dream student housing.
 
 ### Setup
